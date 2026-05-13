@@ -25,7 +25,7 @@ const systemInstructions = [
   "初心者には簡単で実行しやすい内容にし、顧客が続けやすい量にしてください。トレーナーが手直ししやすい短文で書いてください。",
   "食事、睡眠、体重記録、水分摂取、習慣課題も必ず各日に入れてください。",
   "入力されたid、date、dayOfWeek、isRestDayは変更しないでください。休養日はlocationをrestにし、負荷の高いトレーニングを避け、回復・ストレッチ・軽い散歩中心にしてください。",
-  "書籍学習ルールがある場合、studyTaskには書籍本文を出さず、渡された書籍名・章・ラベル・ページ範囲だけを使って学習範囲を表示してください。",
+  "書籍学習ルールがある場合、studyTaskには書籍本文を出さず、渡された書籍名・章・ラベルだけを使って学習範囲を表示してください。",
 ].join("\n");
 
 const createMockResponse = (request: AiAssignmentGenerationRequest): AiAssignmentGenerationResponse => {

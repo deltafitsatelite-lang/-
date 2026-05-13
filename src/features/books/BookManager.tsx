@@ -142,7 +142,7 @@ export function BookManager() {
     <>
       <PageHeader
         title="書籍管理"
-        description="学習課題に使う書籍と、PDFに表示する章・読む範囲・ページ範囲を登録します。書籍本文は保存せず、範囲情報だけを扱います。"
+        description="学習課題に使う書籍と、PDFに表示する章・読む範囲を登録します。書籍本文は保存せず、章・ラベルだけを扱います。"
       />
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr]">
@@ -236,7 +236,7 @@ export function BookManager() {
 
               <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
                 <h3 className="text-lg font-bold text-slate-950">学習セクションを追加</h3>
-                <div className="mt-4 grid gap-4 md:grid-cols-4">
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
                   <label className="flex flex-col gap-2">
                     <span className="text-sm font-semibold text-slate-700">章 *</span>
                     <input
@@ -256,16 +256,6 @@ export function BookManager() {
                       className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
                     />
                     {sectionErrors.label ? <span className="text-sm font-semibold text-rose-600">{sectionErrors.label}</span> : null}
-                  </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-semibold text-slate-700">ページ範囲 *</span>
-                    <input
-                      placeholder="例: p.10〜18"
-                      value={sectionValues.pageRange}
-                      onChange={(event) => setSectionValues((values) => ({ ...values, pageRange: event.target.value }))}
-                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                    />
-                    {sectionErrors.pageRange ? <span className="text-sm font-semibold text-rose-600">{sectionErrors.pageRange}</span> : null}
                   </label>
                   <label className="flex flex-col gap-2">
                     <span className="text-sm font-semibold text-slate-700">表示順 *</span>
@@ -300,7 +290,7 @@ export function BookManager() {
                             {section.chapter} / {section.label}
                           </p>
                           <p className="mt-1 text-sm text-slate-500">
-                            {section.pageRange} / 表示順: {section.order}
+                            表示順: {section.order}
                           </p>
                         </div>
                         <button
@@ -319,7 +309,7 @@ export function BookManager() {
           ) : (
             <div className="rounded-3xl border border-dashed border-slate-300 p-8 text-center">
               <h2 className="text-xl font-bold text-slate-950">書籍を選択してください</h2>
-              <p className="mt-3 text-sm text-slate-500">書籍を登録すると、章・読む範囲・ページ範囲を追加できます。</p>
+              <p className="mt-3 text-sm text-slate-500">書籍を登録すると、章・読む範囲を追加できます。</p>
             </div>
           )}
         </section>

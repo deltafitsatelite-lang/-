@@ -15,7 +15,7 @@ export type BookSection = {
   bookId: EntityId;
   chapter: string;
   label: string;
-  pageRange: string;
+  pageRange?: string;
   order: number;
 };
 

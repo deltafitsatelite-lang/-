@@ -1,65 +1,121 @@
 "use client";
 
-import { pdf } from "@react-pdf/renderer";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AssignmentPlan, Customer } from "@/types";
-import { AssignmentPlanPdfDocument } from "./AssignmentPlanPdfDocument";
 
 type PdfPreviewPanelProps = {
   plan: AssignmentPlan;
   customer: Customer;
 };
 
-const createFileName = (plan: AssignmentPlan, customer: Customer) =>
-  `${customer.name}_${plan.title}_${plan.startDate}_${plan.endDate}.pdf`.replace(/[\\/:*?"<>|\s]+/g, "_");
+const createSafeFileName = (plan: AssignmentPlan, customer: Customer) => {
+  const rawFileName = `${customer.name}_${plan.title}_${plan.startDate}_${plan.endDate}.pdf`;
+  const safeFileName = rawFileName.replace(/[\\/:*?"<>|\s]+/g, "_").replace(/^_+|_+$/g, "");
+
+  return safeFileName || `assignment_${plan.startDate}_${plan.endDate}.pdf`;
+};
+
+const getPdfErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) {
+    return `PDFの生成に失敗しました。ページを再読み込みしてもう一度お試しください。（${error.message}）`;
+  }
+
+  return "PDFの生成に失敗しました。ページを再読み込みしてもう一度お試しください。";
+};
 
 export function PdfPreviewPanel({ plan, customer }: PdfPreviewPanelProps) {
-  const document = useMemo(() => <AssignmentPlanPdfDocument plan={plan} customer={customer} />, [customer, plan]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const objectUrlRef = useRef<string | null>(null);
+  const planRef = useRef(plan);
+  const customerRef = useRef(customer);
+  const pdfInputKey = useMemo(() => JSON.stringify({ plan, customer }), [customer, plan]);
 
   useEffect(() => {
-    let currentObjectUrl: string | null = null;
-    let isCancelled = false;
+    planRef.current = plan;
+    customerRef.current = customer;
+  }, [customer, plan]);
+
+  const revokeCurrentUrl = useCallback(() => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }, []);
+
+  const generatePdfUrl = useCallback(async () => {
+    if (typeof window === "undefined") {
+      throw new Error("ブラウザ環境でのみPDFを生成できます");
+    }
 
     setIsGenerating(true);
     setErrorMessage(null);
-    setPdfUrl(null);
 
-    const generatePdf = async () => {
+    try {
+      const currentPlan = planRef.current;
+      const currentCustomer = customerRef.current;
+      const [{ pdf }, { AssignmentPlanPdfDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("./AssignmentPlanPdfDocument"),
+      ]);
+      const blob = await pdf(<AssignmentPlanPdfDocument plan={currentPlan} customer={currentCustomer} />).toBlob();
+      const nextUrl = URL.createObjectURL(blob);
+
+      revokeCurrentUrl();
+      objectUrlRef.current = nextUrl;
+      setPdfUrl(nextUrl);
+
+      return nextUrl;
+    } catch (error) {
+      const message = getPdfErrorMessage(error);
+
+      revokeCurrentUrl();
+      setPdfUrl(null);
+      setErrorMessage(message);
+      throw error;
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [revokeCurrentUrl]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const preparePreview = async () => {
       try {
-        const blob = await pdf(document).toBlob();
-
-        if (isCancelled) {
-          return;
-        }
-
-        currentObjectUrl = URL.createObjectURL(blob);
-        setPdfUrl(currentObjectUrl);
-      } catch (error) {
-        console.error(error);
-
+        await generatePdfUrl();
+      } catch {
         if (!isCancelled) {
-          setErrorMessage("PDFの生成に失敗しました。入力内容を保存してから、ページを再読み込みしてもう一度お試しください。");
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsGenerating(false);
+          // The visible Japanese error message is set in generatePdfUrl.
         }
       }
     };
 
-    void generatePdf();
+    void preparePreview();
 
     return () => {
       isCancelled = true;
-
-      if (currentObjectUrl) {
-        URL.revokeObjectURL(currentObjectUrl);
-      }
+      revokeCurrentUrl();
+      setPdfUrl(null);
     };
-  }, [document]);
+  }, [generatePdfUrl, pdfInputKey, revokeCurrentUrl]);
+
+  const handleDownload = async () => {
+    try {
+      const url = pdfUrl ?? (await generatePdfUrl());
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = createSafeFileName(plan, customer);
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      // The visible Japanese error message is set in generatePdfUrl.
+    }
+  };
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -72,23 +128,14 @@ export function PdfPreviewPanel({ plan, customer }: PdfPreviewPanelProps) {
           </p>
         </div>
 
-        {pdfUrl ? (
-          <a
-            href={pdfUrl}
-            download={createFileName(plan, customer)}
-            className="rounded-full bg-blue-600 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-blue-700"
-          >
-            PDFをダウンロード
-          </a>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="rounded-full bg-blue-300 px-5 py-3 text-center text-sm font-bold text-white"
-          >
-            {isGenerating ? "PDFを生成中..." : "PDFを生成できません"}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={isGenerating}
+          className="rounded-full bg-blue-600 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+        >
+          {isGenerating ? "PDFを生成中..." : pdfUrl ? "PDFをダウンロード" : "PDFを生成してダウンロード"}
+        </button>
       </div>
 
       {errorMessage ? (
@@ -102,7 +149,7 @@ export function PdfPreviewPanel({ plan, customer }: PdfPreviewPanelProps) {
           <iframe title="PDFプレビュー" src={pdfUrl} className="h-[70vh] min-h-[420px] w-full" />
         ) : (
           <div className="flex h-[420px] items-center justify-center px-6 text-center text-sm font-semibold text-slate-500">
-            {isGenerating ? "PDFを生成中です..." : "PDFプレビューを表示できません。"}
+            {isGenerating ? "PDFを生成中です..." : "PDFプレビューを表示できません。上のボタンから再生成できます。"}
           </div>
         )}
       </div>

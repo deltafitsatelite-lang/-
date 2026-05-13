@@ -293,7 +293,7 @@ function PdfPage({
       {pageIndex === pageCount - 1 ? <Text style={styles.caution}>注意事項: {cautionText}</Text> : null}
 
       <View style={styles.footer} fixed>
-        <Text>書籍本文は含めず、書籍名・章・ページ範囲のみ表示しています。</Text>
+        <Text>書籍本文は含めず、書籍名・章・ラベルのみ表示しています。</Text>
         <Text>
           {pageIndex + 1} / {pageCount}
         </Text>

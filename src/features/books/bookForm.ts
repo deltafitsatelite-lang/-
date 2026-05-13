@@ -10,7 +10,6 @@ export const bookFormSchema = z.object({
 export const bookSectionFormSchema = z.object({
   chapter: z.string().trim().min(1, "章を入力してください"),
   label: z.string().trim().min(1, "ラベルを入力してください"),
-  pageRange: z.string().trim().min(1, "ページ範囲を入力してください"),
   order: z
     .string()
     .trim()
@@ -31,7 +30,6 @@ export const emptyBookFormValues: BookFormValues = {
 export const emptyBookSectionFormValues: BookSectionFormValues = {
   chapter: "",
   label: "",
-  pageRange: "",
   order: "0",
 };
 
@@ -63,7 +61,6 @@ export function createBookSection(values: BookSectionFormValues, bookId: string)
     bookId,
     chapter: values.chapter,
     label: values.label,
-    pageRange: values.pageRange,
     order: Number(values.order),
   };
 }

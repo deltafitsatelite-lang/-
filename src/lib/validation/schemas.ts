@@ -102,7 +102,7 @@ export const bookSectionSchema: z.ZodType<BookSection> = z.object({
   bookId: entityIdSchema,
   chapter: z.string(),
   label: z.string().min(1, "章・節のラベルは必須です"),
-  pageRange: z.string(),
+  pageRange: z.string().optional(),
   order: z.number().int().nonnegative(),
 });
 

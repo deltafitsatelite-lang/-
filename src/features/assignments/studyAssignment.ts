@@ -13,8 +13,11 @@ type ChapterReviewGroup = {
   sections: BookSection[];
 };
 
+const formatSectionText = (section: BookSection) =>
+  [section.chapter, section.label].filter((value) => value.trim().length > 0).join(" ");
+
 const formatProgressTask = (book: Book, section: BookSection) =>
-  `『${book.title}』${section.chapter} ${section.label}（${section.pageRange}）`;
+  `『${book.title}』${formatSectionText(section)}`;
 
 const groupSectionsByChapter = (sections: BookSection[]): ChapterReviewGroup[] => {
   const groups = new Map<string, BookSection[]>();
@@ -31,9 +34,8 @@ const groupSectionsByChapter = (sections: BookSection[]): ChapterReviewGroup[] =
 
 const formatReviewTask = (book: Book, group: ChapterReviewGroup) => {
   const labels = group.sections.map((section) => section.label).join("、");
-  const pages = group.sections.map((section) => section.pageRange).join("、");
 
-  return `復習：『${book.title}』${group.chapter} ${labels}（${pages}）`;
+  return `『${book.title}』${[group.chapter, labels, "復習"].filter((value) => value.trim().length > 0).join(" ")}`;
 };
 
 export function assignStudyTasksToDays(

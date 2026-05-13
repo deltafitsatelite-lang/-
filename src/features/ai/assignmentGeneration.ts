@@ -5,7 +5,6 @@ import { customerSchema } from "@/lib/validation";
 export const aiStudySectionSchema = z.object({
   chapter: z.string(),
   label: z.string(),
-  pageRange: z.string(),
   order: z.number().int().nonnegative(),
 });
 

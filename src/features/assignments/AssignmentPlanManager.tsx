@@ -433,7 +433,6 @@ export function AssignmentPlanManager() {
             sections: selectedBook.chapters.map((chapter) => ({
               chapter: chapter.chapter,
               label: chapter.label,
-              pageRange: chapter.pageRange,
               order: chapter.order,
             })),
           }
@@ -774,7 +773,7 @@ export function AssignmentPlanManager() {
                 <p className="text-sm font-semibold text-blue-600">書籍学習課題の自動割り当て</p>
                 <h2 className="mt-1 text-2xl font-bold text-slate-950">4日進む・2日復習に対応</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
-                  書籍本文は扱わず、書籍名・章・読む範囲・ページ範囲だけを日別の学習課題へ入れます。
+                  書籍本文は扱わず、書籍名・章・読む範囲だけを日別の学習課題へ入れます。
                 </p>
               </div>
               <button
@@ -989,7 +988,7 @@ export function AssignmentPlanManager() {
                         </div>
                         <textarea
                           rows={4}
-                          placeholder="例: 指定ページを10分読む"
+                          placeholder="例: 指定セクションを10分読む"
                           {...register(`days.${index}.studyTask`)}
                           className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
                         />
