@@ -1,25 +1,11 @@
 import {
   Document,
-  Font,
   Page,
   StyleSheet,
   Text,
   View,
 } from "@react-pdf/renderer";
 import type { AssignmentDay, AssignmentPlan, Customer, PdfMode } from "@/types";
-
-const notoSansJpRegular = "https://fonts.gstatic.com/ea/notosansjp/v5/NotoSansJP-Regular.otf";
-const notoSansJpBold = "https://fonts.gstatic.com/ea/notosansjp/v5/NotoSansJP-Bold.otf";
-
-Font.register({
-  family: "NotoSansJP",
-  fonts: [
-    { src: notoSansJpRegular, fontWeight: 400 },
-    { src: notoSansJpBold, fontWeight: 700 },
-  ],
-});
-
-Font.registerHyphenationCallback((word: string) => [word]);
 
 type AssignmentPlanPdfDocumentProps = {
   plan: AssignmentPlan;
@@ -31,7 +17,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#f8fafc",
     color: "#172033",
-    fontFamily: "NotoSansJP",
     fontSize: 9,
     lineHeight: 1.35,
   },
