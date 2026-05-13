@@ -1,0 +1,37 @@
+import type { ActivityLevel, EntityId, Gender, ISODateTimeString } from "./common";
+
+export type Customer = {
+  id: EntityId;
+  name: string;
+  age: number | null;
+  gender: Gender;
+  height: number | null;
+  currentWeight: number | null;
+  targetWeight: number | null;
+  bodyConcerns: string;
+  goal: string;
+  trainingHistory: string;
+  exerciseFrequency: string;
+  lifestyle: string;
+  sleepHours: number | null;
+  eatingHabits: string;
+  alcoholFrequency: string;
+  snackHabit: string;
+  wakeUpTime: string;
+  bedTime: string;
+  weekdayActivityLevel: ActivityLevel;
+  weekendActivityLevel: ActivityLevel;
+  mealsPerDay: number | null;
+  eatingOutFrequency: string;
+  waterIntake: number | null;
+  homeEquipment: string[];
+  gymEquipment: string[];
+  injuries: string;
+  dislikedExercises: string;
+  likedExercises: string;
+  currentChallenges: string;
+  habitsToImprove: string;
+  trainerNotes: string;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+};
