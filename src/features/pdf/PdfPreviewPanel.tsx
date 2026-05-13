@@ -46,6 +46,17 @@ export function PdfPreviewPanel({ plan, customer }: PdfPreviewPanelProps) {
     try {
       const currentPlan = planRef.current;
       const currentCustomer = customerRef.current;
+
+      console.log("PDF generation input", {
+        title: currentPlan.title,
+        customerName: currentCustomer.name,
+        dayCount: currentPlan.days.length,
+      });
+
+      if (currentPlan.days.length === 0) {
+        throw new Error("PDFに出力する課題日がありません。課題期間を設定して日別課題を生成してください。");
+      }
+
       const blob = await generateAssignmentPlanPdfBlob(currentPlan, currentCustomer);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -57,7 +68,7 @@ export function PdfPreviewPanel({ plan, customer }: PdfPreviewPanelProps) {
       link.click();
       link.remove();
 
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      window.setTimeout(() => URL.revokeObjectURL(url), 30000);
     } catch (error) {
       console.error("PDF generation failed", error);
       setErrorMessage(getPdfErrorMessage(error));

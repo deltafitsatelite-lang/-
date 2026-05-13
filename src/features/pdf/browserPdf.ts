@@ -28,7 +28,7 @@ const compactText = (value: string, maxLength: number) => {
 const getTaskRows = (day: AssignmentDay, pdfMode: PdfMode) => {
   const limit = pdfMode === "single_page" ? 52 : 72;
   const rows = [
-    ["運動", compactText(day.trainingTasks.join(" / "), limit)],
+    ["運動", compactText(day.trainingTasks.join(" / ") || "未入力", limit)],
     ["有酸素", compactText(day.cardioTask, limit)],
     ["ケア", compactText(day.mobilityTask, limit)],
     ["食事", compactText(day.mealTask, limit)],
@@ -36,8 +36,8 @@ const getTaskRows = (day: AssignmentDay, pdfMode: PdfMode) => {
     ["体重", compactText(day.weightLogTask, limit)],
     ["水分", compactText(day.waterTask, limit)],
     ["習慣", compactText(day.habitTask, limit)],
-    ["学習", compactText(day.studyTask, limit)],
-    ["メモ", compactText(day.memo, limit)],
+    ["学習", compactText(day.studyTask || "未入力", limit)],
+    ["メモ", compactText(day.memo || "未入力", limit)],
   ].filter(([, text]) => text.length > 0) as Array<[string, string]>;
 
   return pdfMode === "single_page" ? rows.slice(0, day.isRestDay ? 5 : 6) : rows;
@@ -301,7 +301,7 @@ const buildPdfFromImages = (images: PdfPageImage[]) => {
   push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
   addObject(1, ["<< /Type /Catalog /Pages 2 0 R >>"]);
   addObject(2, [
-    `<< /Type /Pages /Count ${images.length} /Kids ${images.map((_, index) => `${3 + index * 3} 0 R`).join(" ")} >>`,
+    `<< /Type /Pages /Count ${images.length} /Kids [${images.map((_, index) => `${3 + index * 3} 0 R`).join(" ")}] >>`,
   ]);
 
   images.forEach((image, index) => {
