@@ -224,12 +224,12 @@ function DayCard({ day, pdfMode }: { day: AssignmentDay; pdfMode: PdfMode }) {
   const checkItems = day.checkItems.length > 0 ? day.checkItems : ["実施", "記録", "確認"];
 
   return (
-    <View style={[styles.dayCard, day.isRestDay ? styles.restDayCard : null]} wrap={false}>
+    <View style={[styles.dayCard, ...(day.isRestDay ? [styles.restDayCard] : [])]} wrap={false}>
       <View style={styles.dayHeader}>
         <Text style={styles.dayTitle}>
           {day.date}（{day.dayOfWeek}）
         </Text>
-        <Text style={[styles.badge, day.isRestDay ? styles.restBadge : null]}>
+        <Text style={[styles.badge, ...(day.isRestDay ? [styles.restBadge] : [])]}>
           {day.isRestDay ? "休養日" : locationLabels[day.location]}
         </Text>
       </View>
