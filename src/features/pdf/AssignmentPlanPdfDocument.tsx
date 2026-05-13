@@ -222,14 +222,16 @@ const splitDaysForMode = (days: AssignmentDay[], pdfMode: PdfMode) => {
 function DayCard({ day, pdfMode }: { day: AssignmentDay; pdfMode: PdfMode }) {
   const taskRows = getTaskRows(day, pdfMode);
   const checkItems = day.checkItems.length > 0 ? day.checkItems : ["実施", "記録", "確認"];
+  const dayCardStyle = day.isRestDay ? [styles.dayCard, styles.restDayCard] : styles.dayCard;
+  const badgeStyle = day.isRestDay ? [styles.badge, styles.restBadge] : styles.badge;
 
   return (
-    <View style={[styles.dayCard, ...(day.isRestDay ? [styles.restDayCard] : [])]} wrap={false}>
+    <View style={dayCardStyle} wrap={false}>
       <View style={styles.dayHeader}>
         <Text style={styles.dayTitle}>
           {day.date}（{day.dayOfWeek}）
         </Text>
-        <Text style={[styles.badge, ...(day.isRestDay ? [styles.restBadge] : [])]}>
+        <Text style={badgeStyle}>
           {day.isRestDay ? "休養日" : locationLabels[day.location]}
         </Text>
       </View>
