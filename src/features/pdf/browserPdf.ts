@@ -9,38 +9,39 @@ const CARD_GAP = 16;
 
 const fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif';
 
-const locationLabels: Record<AssignmentDay["location"], string> = {
-  home: "自宅",
-  gym: "ジム",
-  outdoor: "屋外",
-  rest: "休養日",
-  other: "任意",
-};
-
 const hasText = (value: string | null | undefined) => Boolean(value?.trim());
 
 const compactText = (value: string, maxLength: number) => {
-  const normalized = value.replace(/\s+/g, " ").trim();
+  const normalized = value.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
 
   return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}…` : normalized;
 };
 
-const getTaskRows = (day: AssignmentDay, pdfMode: PdfMode) => {
-  const limit = pdfMode === "single_page" ? 52 : 72;
-  const rows = [
-    ["運動", compactText(day.trainingTasks.join(" / ") || "未入力", limit)],
-    ["有酸素", compactText(day.cardioTask, limit)],
-    ["ケア", compactText(day.mobilityTask, limit)],
-    ["食事", compactText(day.mealTask, limit)],
-    ["睡眠", compactText(day.sleepTask, limit)],
-    ["体重", compactText(day.weightLogTask, limit)],
-    ["水分", compactText(day.waterTask, limit)],
-    ["習慣", compactText(day.habitTask, limit)],
-    ["学習", compactText(day.studyTask || "未入力", limit)],
-    ["メモ", compactText(day.memo || "未入力", limit)],
-  ].filter(([, text]) => text.length > 0) as Array<[string, string]>;
+type TaskRow = {
+  label: "トレーニング" | "学習" | "メモ";
+  text: string;
+  maxLines: number;
+};
 
-  return pdfMode === "single_page" ? rows.slice(0, day.isRestDay ? 5 : 6) : rows;
+const getTrainingText = (day: AssignmentDay) => {
+  const trainingText = day.trainingTasks.map((task) => task.trim()).filter(Boolean).join("\n");
+
+  if (trainingText) {
+    return trainingText;
+  }
+
+  return day.isRestDay ? "休養日です。軽い散歩やストレッチ程度にしましょう。" : "未入力";
+};
+
+const getTaskRows = (day: AssignmentDay, pdfMode: PdfMode): TaskRow[] => {
+  const trainingLimit = pdfMode === "single_page" ? 120 : 180;
+  const textLimit = pdfMode === "single_page" ? 80 : 130;
+
+  return [
+    { label: "トレーニング", text: compactText(getTrainingText(day), trainingLimit), maxLines: pdfMode === "single_page" ? 4 : 6 },
+    { label: "学習", text: compactText(day.studyTask || "未入力", textLimit), maxLines: 3 },
+    { label: "メモ", text: compactText(day.memo || "未入力", textLimit), maxLines: pdfMode === "single_page" ? 3 : 4 },
+  ];
 };
 
 type PdfPageImage = {
@@ -66,14 +67,14 @@ const createCanvasPage = (plan: AssignmentPlan, customer: Customer, pageNumber: 
     throw new Error("PDF生成用のCanvasを作成できませんでした");
   }
 
-  context.fillStyle = "#f8fafc";
+  context.fillStyle = "#ffffff";
   context.fillRect(0, 0, PAGE_WIDTH, PAGE_HEIGHT);
   context.textBaseline = "top";
 
   drawHeader(context, plan, customer);
   drawFooter(context, pageNumber);
 
-  return { canvas, context, y: 252 };
+  return { canvas, context, y: 244 };
 };
 
 const setFont = (context: CanvasRenderingContext2D, size: number, weight: "normal" | "bold" = "normal") => {
@@ -184,12 +185,12 @@ const measureDayCardHeight = (context: CanvasRenderingContext2D, day: Assignment
   const rows = getTaskRows(day, pdfMode);
   let height = 76;
 
-  setFont(context, 18);
-  for (const [, text] of rows) {
-    height += Math.max(28, measureWrappedLines(context, text, PAGE_WIDTH - MARGIN * 2 - 170, 2).length * 25) + 8;
+  setFont(context, 21);
+  for (const { text, maxLines } of rows) {
+    height += 34 + Math.max(34, measureWrappedLines(context, text, PAGE_WIDTH - MARGIN * 2 - 64, maxLines).length * 31) + 18;
   }
 
-  height += 54;
+  height += 24;
 
   return height;
 };
@@ -208,35 +209,28 @@ const drawDayCard = (context: CanvasRenderingContext2D, day: AssignmentDay, pdfM
   setFont(context, 24, "bold");
   context.fillText(`${day.date}（${day.dayOfWeek}）`, cardX + 24, y + 22);
 
-  const badgeText = day.isRestDay ? "休養日" : locationLabels[day.location];
-  context.fillStyle = day.isRestDay ? "#fef3c7" : "#dbeafe";
-  context.strokeStyle = day.isRestDay ? "#fcd34d" : "#bfdbfe";
-  drawRoundRect(context, cardX + cardWidth - 140, y + 18, 112, 38, 18);
-  context.fillStyle = day.isRestDay ? "#92400e" : "#1d4ed8";
-  setFont(context, 17, "bold");
-  context.fillText(badgeText, cardX + cardWidth - 118, y + 27);
+  if (day.isRestDay) {
+    context.fillStyle = "#fef3c7";
+    context.strokeStyle = "#fcd34d";
+    drawRoundRect(context, cardX + cardWidth - 140, y + 18, 112, 38, 18);
+    context.fillStyle = "#92400e";
+    setFont(context, 17, "bold");
+    context.fillText("休養日", cardX + cardWidth - 118, y + 27);
+  }
 
   let rowY = y + 74;
 
-  for (const [label, text] of getTaskRows(day, pdfMode)) {
-    context.fillStyle = "#475569";
-    setFont(context, 17, "bold");
-    context.fillText(label, cardX + 24, rowY);
+  for (const { label, text, maxLines } of getTaskRows(day, pdfMode)) {
+    context.fillStyle = "#111827";
+    setFont(context, 20, "bold");
+    context.fillText(`【${label}】`, cardX + 28, rowY);
+    rowY += 34;
 
-    context.fillStyle = "#172033";
-    setFont(context, 18);
-    const textHeight = drawWrappedText(context, text, cardX + 110, rowY, cardWidth - 146, 25, 2);
-    rowY += Math.max(28, textHeight) + 8;
+    context.fillStyle = "#1f2937";
+    setFont(context, 21);
+    const textHeight = drawWrappedText(context, text, cardX + 28, rowY, cardWidth - 56, 31, maxLines);
+    rowY += Math.max(34, textHeight) + 18;
   }
-
-  const checkItems = day.checkItems.length > 0 ? day.checkItems : ["実施", "記録", "確認"];
-  context.fillStyle = "#334155";
-  setFont(context, 17, "bold");
-  context.fillText(
-    checkItems.slice(0, pdfMode === "single_page" ? 4 : 6).map((item) => `□ ${compactText(item, 16)}`).join("   "),
-    cardX + 24,
-    y + cardHeight - 40,
-  );
 
   return cardHeight;
 };

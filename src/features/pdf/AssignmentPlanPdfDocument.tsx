@@ -109,24 +109,6 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#0f172a",
   },
-  checkList: {
-    marginTop: 5,
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 4,
-  },
-  checkItem: {
-    padding: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#94a3b8",
-    fontSize: 8,
-  },
-  checkBox: {
-    fontSize: 11,
-    fontWeight: 700,
-  },
   caution: {
     marginTop: 10,
     padding: 9,
@@ -148,14 +130,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const locationLabels: Record<AssignmentDay["location"], string> = {
-  home: "自宅",
-  gym: "フィットネスジム",
-  outdoor: "屋外",
-  rest: "休養",
-  other: "任意",
-};
-
 const cautionText =
   "痛みや強い違和感がある場合は無理をせず中止してください。不安がある場合はトレーナーに相談してください。";
 
@@ -173,26 +147,25 @@ const compactText = (value: string | string[], limit: number) => {
 
 const hasText = (value: string | string[]) => compactText(value, 1000).length > 0;
 
-const getTaskRows = (day: AssignmentDay, pdfMode: PdfMode) => {
-  const limit = pdfMode === "single_page" ? 44 : 88;
-  const rows = [
-    ["筋トレ", compactText(day.trainingTasks, limit)],
-    ["有酸素", compactText(day.cardioTask, limit)],
-    ["ケア", compactText(day.mobilityTask, limit)],
-    ["食事", compactText(day.mealTask, limit)],
-    ["睡眠", compactText(day.sleepTask, limit)],
-    ["体重", compactText(day.weightLogTask, limit)],
-    ["水分", compactText(day.waterTask, limit)],
-    ["習慣", compactText(day.habitTask, limit)],
-    ["学習", compactText(day.studyTask, limit)],
-    ["メモ", compactText(day.memo, limit)],
-  ].filter(([, text]) => text.length > 0);
+const getTrainingText = (day: AssignmentDay) => {
+  const trainingText = day.trainingTasks.map((task) => task.trim()).filter(Boolean).join(" / ");
 
-  if (pdfMode === "single_page") {
-    return rows.slice(0, day.isRestDay ? 5 : 6);
+  if (trainingText) {
+    return trainingText;
   }
 
-  return rows;
+  return day.isRestDay ? "休養日です。軽い散歩やストレッチ程度にしましょう。" : "未入力";
+};
+
+const getTaskRows = (day: AssignmentDay, pdfMode: PdfMode) => {
+  const trainingLimit = pdfMode === "single_page" ? 80 : 130;
+  const textLimit = pdfMode === "single_page" ? 60 : 100;
+
+  return [
+    ["トレーニング", compactText(getTrainingText(day), trainingLimit)],
+    ["学習", compactText(day.studyTask || "未入力", textLimit)],
+    ["メモ", compactText(day.memo || "未入力", textLimit)],
+  ];
 };
 
 const splitDaysForMode = (days: AssignmentDay[], pdfMode: PdfMode) => {
@@ -206,7 +179,6 @@ const splitDaysForMode = (days: AssignmentDay[], pdfMode: PdfMode) => {
 
 function DayCard({ day, pdfMode }: { day: AssignmentDay; pdfMode: PdfMode }) {
   const taskRows = getTaskRows(day, pdfMode);
-  const checkItems = day.checkItems.length > 0 ? day.checkItems : ["実施", "記録", "確認"];
   const dayCardStyle = day.isRestDay ? [styles.dayCard, styles.restDayCard] : styles.dayCard;
   const badgeStyle = day.isRestDay ? [styles.badge, styles.restBadge] : styles.badge;
 
@@ -216,9 +188,7 @@ function DayCard({ day, pdfMode }: { day: AssignmentDay; pdfMode: PdfMode }) {
         <Text style={styles.dayTitle}>
           {day.date}（{day.dayOfWeek}）
         </Text>
-        <Text style={badgeStyle}>
-          {day.isRestDay ? "休養日" : locationLabels[day.location]}
-        </Text>
+        {day.isRestDay ? <Text style={badgeStyle}>休養日</Text> : null}
       </View>
       {taskRows.map(([label, text]) => (
         <View key={`${day.id}-${label}`} style={styles.taskRow}>
@@ -226,14 +196,6 @@ function DayCard({ day, pdfMode }: { day: AssignmentDay; pdfMode: PdfMode }) {
           <Text style={styles.taskText}>{text}</Text>
         </View>
       ))}
-      <View style={styles.checkList}>
-        {checkItems.slice(0, pdfMode === "single_page" ? 4 : 6).map((item) => (
-          <Text key={`${day.id}-${item}`} style={styles.checkItem}>
-            <Text style={styles.checkBox}>□ </Text>
-            {compactText(item, 20)}
-          </Text>
-        ))}
-      </View>
     </View>
   );
 }
