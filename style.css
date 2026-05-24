@@ -13,3 +13,6 @@ button{background:#2563eb;color:white;border:none;cursor:pointer}
 #pdfPreview .pdf-card{border:1px solid #cfd8e3;border-radius:10px;padding:10px;margin-bottom:10px;background:white}
 pre{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;padding:10px;border-radius:8px;min-height:70px}
 @media (max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.pdf-goal-card{border:2px solid #2563eb;background:#eff6ff}
+.pdf-goal-card h3{margin:0 0 6px 0;color:#1e3a8a}
