@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "latest",
-    "@react-pdf/renderer": "latest",
-    "next": "latest",
     "react": "latest",
     "react-dom": "latest",
     "react-hook-form": "latest",
@@ -28,5 +26,6 @@
     "eslint-config-next": "latest",
     "tailwindcss": "latest",
     "typescript": "latest"
-  }
+  },
+  "main": "expo-router/entry"
 }

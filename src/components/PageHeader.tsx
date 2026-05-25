@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type PageHeaderProps = {
   title: string;
@@ -11,7 +11,7 @@ type PageHeaderProps = {
 
 export default function PageHeader({ title, description, rightSlot }: PageHeaderProps) {
   return (
-    <View style={styles.wrapper}>
+    <View style={styles.container}>
       <View style={styles.left}>
         <Text style={styles.title}>{title}</Text>
         {description ? <Text style={styles.description}>{description}</Text> : null}
@@ -22,14 +22,26 @@ export default function PageHeader({ title, description, rightSlot }: PageHeader
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 12,
   },
-  left: { flex: 1, gap: 4 },
-  title: { fontSize: 24, fontWeight: '700', color: '#0f172a' },
-  description: { fontSize: 14, color: '#475569' },
-  right: { marginLeft: 8 },
+  left: {
+    flex: 1,
+    gap: 4,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  description: {
+    fontSize: 14,
+    color: '#475569',
+  },
+  right: {
+    marginLeft: 8,
+  },
 });
