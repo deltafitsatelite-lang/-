@@ -12,6 +12,12 @@
     "plugins": [
       "expo-router",
       "expo-notifications"
-    ]
+    ],
+    "android": {
+      "package": "com.deltafitsatelite.movelingo",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7FBFF"
+      }
+    }
   }
 }
