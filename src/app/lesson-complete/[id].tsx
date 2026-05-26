@@ -1,109 +1,162 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  SafeAreaView,
+  Pressable,
   StyleSheet,
   Text,
   View,
-  Pressable,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { getLessonById } from '../../data/lessons';
+import { markLessonCompleted, type Progress } from '../../lib/progress';
 
 export default function LessonComplete() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ id: string }>();
+  const lessonId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const lesson = getLessonById(lessonId ?? '');
+  const savedRef = useRef(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.emoji}>🎉</Text>
-        <Text style={styles.title}>今日の一歩、完了！</Text>
-        <Text style={styles.description}>
-          3分でも、身体はちゃんと前に進んでいます。
-        </Text>
+  useEffect(() => {
+    if (!lesson || savedRef.current) {
+      return;
+    }
 
-        <View style={styles.rewardCard}>
-          <Text style={styles.rewardLabel}>獲得XP</Text>
-          <Text style={styles.rewardValue}>+10 XP</Text>
-        </View>
+    savedRef.current = true;
 
-        <View style={styles.rewardCard}>
-          <Text style={styles.rewardLabel}>連続記録</Text>
-          <Text style={styles.rewardValue}>3日</Text>
-        </View>
+    markLessonCompleted(lesson.id, lesson.xp).then((nextProgress) => {
+      setProgress(nextProgress);
+    });
+  }, [lesson]);
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.primaryButton,
-            pressed && styles.buttonPressed,
-          ]}
-          onPress={() => router.replace('/')}
-        >
-          <Text style={styles.primaryButtonText}>ホームに戻る</Text>
+  if (!lesson) {
+    return (
+      <View style={styles.screen}>
+        <Text style={styles.title}>レッスンが見つかりません</Text>
+        <Pressable style={styles.primaryButton} onPress={() => router.replace('/')}>
+          <Text style={styles.primaryButtonText}>ホームへ戻る</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    );
+  }
+
+  return (
+    <View style={styles.screen}>
+      <View style={styles.completeBadge}>
+        <Text style={styles.completeBadgeText}>✓</Text>
+      </View>
+
+      <Text style={styles.title}>完了しました！</Text>
+      <Text style={styles.subtitle}>{lesson.title}</Text>
+
+      <View style={styles.rewardCard}>
+        <View style={styles.rewardItem}>
+          <Text style={styles.rewardLabel}>獲得XP</Text>
+          <Text style={styles.rewardValue}>+{lesson.xp}</Text>
+        </View>
+
+        <View style={styles.rewardItem}>
+          <Text style={styles.rewardLabel}>合計XP</Text>
+          <Text style={styles.rewardValue}>{progress?.xp ?? '-'}</Text>
+        </View>
+
+        <View style={styles.rewardItem}>
+          <Text style={styles.rewardLabel}>継続</Text>
+          <Text style={styles.rewardValue}>{progress?.streak ?? '-'}日</Text>
+        </View>
+      </View>
+
+      <Text style={styles.unlockText}>
+        次のレッスンが解放されました
+      </Text>
+
+      <Pressable style={styles.primaryButton} onPress={() => router.replace('/')}>
+        <Text style={styles.primaryButtonText}>ロードマップへ戻る</Text>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  screen: {
     flex: 1,
-    backgroundColor: '#F7FBF7',
+    backgroundColor: '#EAF7F0',
+    paddingTop: 86,
+    paddingHorizontal: 24,
+    alignItems: 'center',
   },
-  container: {
-    flex: 1,
-    padding: 24,
+  completeBadge: {
+    width: 104,
+    height: 104,
+    borderRadius: 34,
+    backgroundColor: '#20C981',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#1C8C62',
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 8,
   },
-  emoji: {
-    fontSize: 56,
-    textAlign: 'center',
-    marginBottom: 18,
+  completeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 54,
+    fontWeight: '900',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#17202A',
+    color: '#10352D',
+    fontSize: 34,
+    fontWeight: '900',
+    marginBottom: 8,
     textAlign: 'center',
-    marginBottom: 12,
   },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#34495E',
-    textAlign: 'center',
+  subtitle: {
+    color: '#52736B',
+    fontSize: 17,
+    fontWeight: '800',
     marginBottom: 24,
+    textAlign: 'center',
   },
   rewardCard: {
+    width: '100%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    borderRadius: 28,
     padding: 20,
-    marginBottom: 12,
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D6EEE5',
+    marginBottom: 18,
+  },
+  rewardItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
   },
   rewardLabel: {
-    fontSize: 14,
-    color: '#5D6D7E',
-    marginBottom: 6,
+    color: '#6B8A82',
+    fontSize: 15,
+    fontWeight: '800',
   },
   rewardValue: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#22A45D',
+    color: '#123D34',
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  unlockText: {
+    color: '#2F7D61',
+    fontSize: 16,
+    fontWeight: '900',
+    marginBottom: 26,
   },
   primaryButton: {
-    backgroundColor: '#22A45D',
-    borderRadius: 18,
-    paddingVertical: 16,
+    width: '100%',
+    backgroundColor: '#123D34',
+    borderRadius: 22,
+    paddingVertical: 17,
     alignItems: 'center',
-    marginTop: 18,
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  buttonPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.99 }],
+    fontSize: 17,
+    fontWeight: '900',
   },
 });
