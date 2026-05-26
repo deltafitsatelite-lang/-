@@ -32,7 +32,6 @@ export default function LessonDetailScreen() {
   } as const;
 
   const lesson = lessons.find((item) => item.id === id) ?? lessonByAlias[id as keyof typeof lessonByAlias];
-  const { completeLessonById } = useProgress();
   const { profile } = useUserProfile();
   const [selectedReason, setSelectedReason] = useState<CoachReason | null>(null);
 
@@ -96,7 +95,6 @@ export default function LessonDetailScreen() {
             <AppButton
               title="完了した"
               onPress={() => {
-                completeLessonById(lesson.id);
                 router.push(`/lesson-complete/${lesson.id}`);
               }}
             />

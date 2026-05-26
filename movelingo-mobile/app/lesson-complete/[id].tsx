@@ -9,11 +9,30 @@ import { theme } from '@/constants/theme';
 import { lessons } from '@/data/lessons';
 import { skillTrees } from '@/data/skillTrees';
 import { useProgress } from '@/context/ProgressContext';
+import { useEffect, useRef } from 'react';
+
+const lessonIdAliases: Record<string, string> = {
+  'chair-squat': 'lower-body-1',
+  'wall-pushup': 'upper-body-1',
+  'shoulder-mobility': 'flexibility-1',
+  'core-breathing': 'core-1',
+  'easy-walk': 'cardio-1',
+  'hip-stretch': 'flexibility-2',
+};
 
 export default function LessonCompleteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { progress } = useProgress();
-  const currentIndex = lessons.findIndex((lesson) => lesson.id === id);
+  const { progress, completeLessonById } = useProgress();
+  const mappedId = id ? lessonIdAliases[id] ?? id : undefined;
+  const countedRef = useRef(false);
+
+  useEffect(() => {
+    if (!mappedId || countedRef.current) return;
+    completeLessonById(mappedId);
+    countedRef.current = true;
+  }, [completeLessonById, mappedId]);
+
+  const currentIndex = lessons.findIndex((lesson) => lesson.id === mappedId);
   const currentLesson = currentIndex >= 0 ? lessons[currentIndex] : undefined;
   const nextLesson = currentIndex >= 0 && currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : lessons[0];
 

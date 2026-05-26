@@ -5,8 +5,8 @@ export type RoadmapNode = {
   lessonId: string;
   title: string;
   skill: string;
-  status: RoadmapNodeStatus;
   xp: number;
+  kind?: 'normal' | 'chest' | 'recovery';
 };
 
 export type RoadmapSection = {
