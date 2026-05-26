@@ -16,3 +16,10 @@ pre{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;padding:10px;border-ra
 
 .pdf-goal-card{border:2px solid #2563eb;background:#eff6ff}
 .pdf-goal-card h3{margin:0 0 6px 0;color:#1e3a8a}
+
+.pdf-title-card{border:2px solid #2563eb;background:#dbeafe}
+.pdf-title-card h3{margin:0 0 6px 0;color:#1e3a8a}
+.pdf-message-card{background:#f8fafc}
+.pdf-message-card h3,.pdf-rule-card h3{margin:0 0 6px 0;color:#0f172a}
+.pdf-rule-card{background:#f8fafc}
+.pdf-rule-card ul{margin:0;padding-left:18px;display:grid;gap:4px}
