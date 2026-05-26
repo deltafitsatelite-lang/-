@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "MoveLingo",
+    "slug": "movelingo",
+    "scheme": "movelingo",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.example.movelingo"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications"
+    ],
+    "android": {
+      "package": "com.deltafitsatelite.movelingo",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7FBFF"
+      }
+    }
+  }
+}
