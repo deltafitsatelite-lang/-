@@ -23,14 +23,14 @@ export default function HomeScreen() {
 
       <ScrollView contentContainerStyle={styles.roadmap} showsVerticalScrollIndicator={false}>
         {roadmapSection.nodes.map((node, idx) => {
-          const canOpen = node.state === 'current' || node.state === 'completed';
+          const canOpen = node.status === 'current' || node.status === 'completed';
           return (
             <View key={node.id} style={{ alignItems: idx % 2 === 0 ? 'center' : 'flex-end', width: '100%' }}>
               <RoadmapNode
                 node={node}
                 onPress={() => {
                   if (canOpen) {
-                    router.push('/lesson/chair-squat');
+                    router.push(`/lesson/${node.lessonId}`);
                     return;
                   }
                   Alert.alert('ロック中', 'このレッスンはまだロックされています');

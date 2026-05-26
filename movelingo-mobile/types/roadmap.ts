@@ -1,9 +1,12 @@
-export type RoadmapNodeState = 'completed' | 'current' | 'locked' | 'chest' | 'recovery';
+export type RoadmapNodeStatus = 'completed' | 'current' | 'locked' | 'chest' | 'recovery';
 
 export type RoadmapNode = {
   id: string;
-  label: string;
-  state: RoadmapNodeState;
+  lessonId: string;
+  title: string;
+  skill: string;
+  status: RoadmapNodeStatus;
+  xp: number;
 };
 
 export type RoadmapSection = {

@@ -22,7 +22,16 @@ const coachOptions: { label: string; value: CoachReason }[] = [
 
 export default function LessonDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const lesson = lessons.find((item) => item.id === id) ?? (id === 'chair-squat' ? lessons[0] : undefined);
+  const lessonByAlias = {
+    'chair-squat': lessons[0],
+    'wall-pushup': lessons[6],
+    'shoulder-mobility': lessons[9],
+    'core-breathing': lessons[3],
+    'easy-walk': lessons[12],
+    'hip-stretch': lessons[10],
+  } as const;
+
+  const lesson = lessons.find((item) => item.id === id) ?? lessonByAlias[id as keyof typeof lessonByAlias];
   const { completeLessonById } = useProgress();
   const { profile } = useUserProfile();
   const [selectedReason, setSelectedReason] = useState<CoachReason | null>(null);

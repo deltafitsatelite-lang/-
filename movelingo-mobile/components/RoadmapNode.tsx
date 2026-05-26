@@ -23,17 +23,18 @@ const ICONS = {
 } as const;
 
 export function RoadmapNode({ node, onPress }: Props) {
-  const isCurrent = node.state === 'current';
+  const isCurrent = node.status === 'current';
 
   return (
     <View style={styles.wrapper}>
       <Pressable
         onPress={onPress}
-        style={[styles.circle, { backgroundColor: COLORS[node.state] }, isCurrent && styles.current]}
+        style={[styles.circle, { backgroundColor: COLORS[node.status] }, isCurrent && styles.current]}
       >
-        <Text style={styles.icon}>{ICONS[node.state]}</Text>
+        <Text style={styles.icon}>{ICONS[node.status]}</Text>
       </Pressable>
-      <Text style={styles.label}>{node.label}</Text>
+      <Text style={styles.label}>{node.title}</Text>
+      <Text style={styles.meta}>{node.skill} ・ {node.xp}XP</Text>
     </View>
   );
 }
@@ -54,4 +55,5 @@ const styles = StyleSheet.create({
   },
   icon: { fontSize: 28 },
   label: { color: '#E2E8F0', marginTop: 6, fontSize: 13, fontWeight: '600' },
+  meta: { color: '#94A3B8', fontSize: 11, marginTop: 2 },
 });
