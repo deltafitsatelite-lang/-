@@ -16,20 +16,14 @@ export const INITIAL_PROGRESS_STATE: ProgressState = {
     { skillTree: 'flexibility', progressPercent: 35 },
     { skillTree: 'cardio', progressPercent: 35 },
   ],
+  recoveryMode: false,
+  recentMpGained: 0,
 };
 
 function dayDiff(fromDate: string, toDate: string): number {
   const from = new Date(`${fromDate}T00:00:00Z`).getTime();
   const to = new Date(`${toDate}T00:00:00Z`).getTime();
   return Math.floor((to - from) / MS_PER_DAY);
-}
-
-function updateStreak(streakDays: number, lastCompletedDate: string | null, today: string): number {
-  if (!lastCompletedDate) return 1;
-  const diff = dayDiff(lastCompletedDate, today);
-  if (diff <= 0) return streakDays;
-  if (diff <= 2) return streakDays + 1;
-  return 1;
 }
 
 function updateSkillProgress(skillProgress: SkillProgress[], skillTree: SkillTree): SkillProgress[] {
@@ -45,14 +39,26 @@ export function completeLesson(
   lesson: Lesson,
   today: string,
 ): { nextState: ProgressState; result: CompleteLessonResult } {
-  const baseXp = 10;
+  const baseMp = 10;
   const firstTimeBonus = state.completedLessonIds.includes(lesson.id) ? 0 : 5;
-  const xpGained = baseXp + firstTimeBonus;
+  const xpGained = baseMp + firstTimeBonus;
 
-  const shouldUpdateStreak = !state.lastCompletedDate || dayDiff(state.lastCompletedDate, today) > 0;
-  const nextStreakDays = shouldUpdateStreak
-    ? updateStreak(state.streakDays, state.lastCompletedDate, today)
-    : state.streakDays;
+  const diff = state.lastCompletedDate ? dayDiff(state.lastCompletedDate, today) : 0;
+  const isNewDay = !state.lastCompletedDate || diff > 0;
+
+  let nextStreakDays = state.streakDays;
+  let recoveryMode = false;
+
+  if (!state.lastCompletedDate) {
+    nextStreakDays = 1;
+  } else if (isNewDay) {
+    if (diff <= 2) {
+      nextStreakDays = state.streakDays + 1;
+    } else {
+      nextStreakDays = state.streakDays;
+      recoveryMode = true;
+    }
+  }
 
   const nextCompleted = state.completedLessonIds.includes(lesson.id)
     ? state.completedLessonIds
@@ -67,6 +73,8 @@ export function completeLesson(
     lastCompletedDate: today,
     completedLessonIds: nextCompleted,
     skillProgress: nextSkillProgress,
+    recoveryMode,
+    recentMpGained: xpGained,
   };
 
   return {
@@ -76,6 +84,7 @@ export function completeLesson(
       totalXp: nextState.totalXp,
       streakDays: nextState.streakDays,
       skillProgress: nextState.skillProgress,
+      recoveryMode,
     },
   };
 }

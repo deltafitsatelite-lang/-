@@ -37,9 +37,9 @@ export default function HomeScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.topStats}>
-        <Text style={styles.stat}>🔥 7</Text>
+        <Text style={styles.stat}>🔥 {progress.streakDays}</Text>
         <Text style={styles.stat}>⚡ 1</Text>
-        <Text style={styles.stat}>💎 525</Text>
+        <Text style={styles.stat}>💎 {progress.totalXp}</Text>
         <Text style={styles.stat}>💚 25</Text>
       </View>
 

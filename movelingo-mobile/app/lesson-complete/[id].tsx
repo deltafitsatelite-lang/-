@@ -54,8 +54,8 @@ export default function LessonCompleteScreen() {
 
           <AppCard style={styles.statsCard}>
             <AppText variant="subheading">今回の結果</AppText>
-            <AppText>獲得XP: +10（初回+5）</AppText>
-            <AppText>現在XP: {progress.totalXp}</AppText>
+            <AppText>獲得MP: +{progress.recentMpGained}</AppText>
+            <AppText>現在MP: {progress.totalXp}</AppText>
             <AppText>連続記録: {progress.streakDays}日</AppText>
             <AppText>対象スキル: {skill?.nameJa ?? '未設定'}</AppText>
             <AppText>スキル成長: {Math.round(progressPercent)}%</AppText>

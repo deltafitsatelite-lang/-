@@ -11,6 +11,8 @@ export type ProgressState = {
   lastCompletedDate: string | null;
   completedLessonIds: string[];
   skillProgress: SkillProgress[];
+  recoveryMode: boolean;
+  recentMpGained: number;
 };
 
 export type CompleteLessonResult = {
@@ -18,4 +20,5 @@ export type CompleteLessonResult = {
   totalXp: number;
   streakDays: number;
   skillProgress: SkillProgress[];
+  recoveryMode: boolean;
 };
