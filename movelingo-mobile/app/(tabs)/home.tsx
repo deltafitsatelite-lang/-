@@ -1,68 +1,94 @@
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { AppButton } from '@/components/AppButton';
-import { AppCard } from '@/components/AppCard';
-import { AppText } from '@/components/AppText';
-import { ScreenContainer } from '@/components/ScreenContainer';
-import { XPBadge } from '@/components/XPBadge';
-import { lessons } from '@/data/lessons';
-import { skillTrees } from '@/data/skillTrees';
-import { theme } from '@/constants/theme';
-import { StyleSheet, View } from 'react-native';
-import { useProgress } from '@/context/ProgressContext';
-import { useUserProfile } from '@/context/UserProfileContext';
-import { getTodayLesson } from '@/lib/todayLesson';
+import { roadmapSection } from '@/data/roadmap';
+import { RoadmapNode } from '@/components/RoadmapNode';
 
 export default function HomeScreen() {
-  const { progress } = useProgress();
-  const { profile } = useUserProfile();
-  const selected = getTodayLesson(profile, progress, lessons);
-  const todayLesson = selected.lesson;
-  const skill = skillTrees.find((item) => item.key === todayLesson.skillTree);
-
   return (
-    <ScreenContainer>
-      <View style={styles.topSection}>
-        <XPBadge xp={progress.totalXp} />
-        <AppText variant="caption">🔥 連続記録 {progress.streakDays}日</AppText>
+    <View style={styles.screen}>
+      <View style={styles.topStats}>
+        <Text style={styles.stat}>🔥 7</Text>
+        <Text style={styles.stat}>⚡ 1</Text>
+        <Text style={styles.stat}>💎 525</Text>
+        <Text style={styles.stat}>💚 25</Text>
       </View>
 
-      <AppText variant="heading">今日のレッスン</AppText>
-      <AppText variant="caption">{selected.reason}</AppText>
-
-      <AppCard style={styles.lessonCard}>
-        <AppText variant="subheading">{todayLesson.title}</AppText>
-        <AppText>所要時間: {todayLesson.totalMinutes}分</AppText>
-        <AppText>対象スキル: {skill?.nameJa ?? todayLesson.skillTree}</AppText>
-        <AppText>難易度: 初心者向け</AppText>
-        <AppText>獲得予定XP: +10（初回は+5ボーナス）</AppText>
-      </AppCard>
-
-      <View style={styles.bottomArea}>
-        <AppCard>
-          <AppText variant="caption">今日の一言</AppText>
-          <AppText>「完璧より、まず1回。小さな一歩が力になります。」</AppText>
-        </AppCard>
-        <AppButton
-          title="今日のレッスンを始める"
-          onPress={() => router.push(`/lesson/${todayLesson.id}`)}
-        />
+      <View style={styles.sectionCard}>
+        <View>
+          <Text style={styles.sectionTitle}>{roadmapSection.title}</Text>
+          <Text style={styles.sectionSubtitle}>{roadmapSection.subtitle}</Text>
+        </View>
+        <Text style={styles.sectionIcon}>≡</Text>
       </View>
-    </ScreenContainer>
+
+      <ScrollView contentContainerStyle={styles.roadmap} showsVerticalScrollIndicator={false}>
+        {roadmapSection.nodes.map((node, idx) => {
+          const canOpen = node.state === 'current' || node.state === 'completed';
+          return (
+            <View key={node.id} style={{ alignItems: idx % 2 === 0 ? 'center' : 'flex-end', width: '100%' }}>
+              <RoadmapNode
+                node={node}
+                onPress={() => {
+                  if (canOpen) {
+                    router.push('/lesson/chair-squat');
+                    return;
+                  }
+                  Alert.alert('ロック中', 'このレッスンはまだロックされています');
+                }}
+              />
+            </View>
+          );
+        })}
+      </ScrollView>
+
+      <View style={styles.bottomNav}>
+        <Text style={[styles.navItem, styles.active]}>ホーム</Text>
+        <Text style={styles.navItem}>トレーニング</Text>
+        <Text style={styles.navItem}>実績</Text>
+        <Text style={styles.navItem}>コーチ</Text>
+        <Text style={styles.navItem}>プロフィール</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  topSection: {
+  screen: { flex: 1, backgroundColor: '#0F172A', paddingTop: 52, paddingHorizontal: 16 },
+  topStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  stat: { color: '#E2E8F0', fontSize: 14, fontWeight: '700' },
+  sectionCard: {
+    backgroundColor: '#22C55E',
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  lessonCard: {
-    gap: theme.spacing.sm,
+  sectionTitle: { color: '#052E16', fontSize: 18, fontWeight: '800' },
+  sectionSubtitle: { color: '#14532D', marginTop: 4, fontSize: 14, fontWeight: '600' },
+  sectionIcon: { color: '#14532D', fontSize: 22, fontWeight: '800' },
+  roadmap: { paddingBottom: 90, alignItems: 'center' },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#1E293B',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#334155',
   },
-  bottomArea: {
-    marginTop: 'auto',
-    gap: theme.spacing.md,
-    paddingTop: theme.spacing.md,
-  },
+  navItem: { color: '#94A3B8', fontSize: 11, fontWeight: '700' },
+  active: { color: '#22C55E' },
 });
