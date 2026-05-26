@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>次回までの課題作成アプリ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>次回までの課題作成</h1>
+    <section class="card highlight">
+      <h2>次回までの目標</h2>
+      <label>次回までの目標<textarea id="nextGoal" rows="3"></textarea></label>
+      <label>目標の優先度
+        <select id="goalPriority"><option>高</option><option selected>中</option><option>低</option></select>
+      </label>
+      <label>目標メモ<textarea id="goalMemo" rows="2"></textarea></label>
+    </section>
+
+    <section class="card">
+      <h2>顧客情報・期間</h2>
+      <div class="grid2">
+        <label>顧客名<input id="customerName" /></label>
+        <label>PDFタイトル<input id="planTitle" value="次回までのトレーニング課題" /></label>
+        <label>開始日<input id="startDate" type="date" /></label>
+        <label>終了日<input id="endDate" type="date" /></label>
+        <label>次回パーソナル日<input id="nextTrainingDate" type="date" /></label>
+      </div>
+      <label>トレーナーからのメッセージ<textarea id="trainerMessage" rows="3"></textarea></label>
+    </section>
+
+    <section class="card">
+      <h2>日別課題</h2>
+      <button id="generateDays">日別課題を生成</button>
+      <div id="days"></div>
+    </section>
+
+    <section class="card">
+      <h2>課題レポート保存</h2>
+      <div class="grid3">
+        <label>トレーニング完成度(0-100)<input id="cTraining" type="number" min="0" max="100" value="70"></label>
+        <label>食事完成度<input id="cMeal" type="number" min="0" max="100" value="70"></label>
+        <label>睡眠完成度<input id="cSleep" type="number" min="0" max="100" value="70"></label>
+        <label>体重記録完成度<input id="cWeight" type="number" min="0" max="100" value="70"></label>
+        <label>水分完成度<input id="cWater" type="number" min="0" max="100" value="70"></label>
+        <label>学習完成度<input id="cStudy" type="number" min="0" max="100" value="70"></label>
+      </div>
+      <label>顧客自己評価<textarea id="customerFeedback" rows="2"></textarea></label>
+      <label>トレーナーメモ<textarea id="reportTrainerMemo" rows="2"></textarea></label>
+      <label>痛み・違和感<textarea id="painOrDiscomfort" rows="2"></textarea></label>
+      <label>難易度
+        <select id="difficultyFeedback"><option>簡単すぎた</option><option selected>ちょうどよい</option><option>難しかった</option></select>
+      </label>
+      <label>次回改善メモ<textarea id="improvementMemo" rows="2"></textarea></label>
+      <div class="actions">
+        <button id="saveReport">今回の課題レポートを保存</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>過去レポートを見る</h2>
+      <label>顧客名で絞り込み<input id="reportCustomerFilter" /></label>
+      <label>過去レポート<select id="reportSelect"><option value="">選択してください</option></select></label>
+      <button id="generateFromLast">先週の結果から今週の課題を作る</button>
+      <pre id="reportPreview"></pre>
+    </section>
+
+    <section class="card">
+      <h2>PDFプレビュー</h2>
+      <div id="pdfPreview"></div>
+      <button id="downloadPdf">PDFを生成してダウンロード</button>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
